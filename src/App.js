@@ -1,44 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { Amplify } from 'aws-amplify';
-import { Authenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
+import { Amplify } from "aws-amplify";
+import { Authenticator } from "@aws-amplify/ui-react";
+import "@aws-amplify/ui-react/styles.css";
+import axios from "axios";
 
 // AWS Amplify configuration
-// Amplify.configure({
-//   Auth: {
-//     region: 'us-east-1', // Update with your Cognito region
-//     userPoolId: 'us-east-1_XXXXXXXXX', // Update with your User Pool ID
-//     userPoolWebClientId: 'XXXXXXXXXXXXXXXXXXXX', // Update with your App Client ID
-//   },
-// });
+Amplify.configure({
+  Auth: {
+    region: "us-east-1", // Update with your Cognito region
+    userPoolId: "us-east-1_41yNCf9Xu", // Update with your User Pool ID
+    userPoolWebClientId: "7bb9aqm0nua0fnj7nor4sk7kq5", // Update with your App Client ID
+  },
+});
 
 // Upload Component
 const Upload = () => {
   const [file, setFile] = useState(null);
-  const [uploadUrl, setUploadUrl] = useState('');
-  const [status, setStatus] = useState('');
+  const [uploadUrl, setUploadUrl] = useState("");
+  const [status, setStatus] = useState("");
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
   const handleUpload = async () => {
-    setStatus('Requesting upload URL...');
-    const res = await axios.post('/upload');
+    setStatus("Requesting upload URL...");
+    const res = await axios.post("/upload");
     const { uploadUrl: url } = res.data;
     setUploadUrl(url);
 
-    setStatus('Uploading...');
+    setStatus("Uploading...");
     await axios.put(url, file, {
-      headers: { 'Content-Type': file.type },
+      headers: { "Content-Type": file.type },
     });
-    setStatus('Upload successful!');
+    setStatus("Upload successful!");
   };
 
   return (
     <div className="p-8 bg-white rounded-2xl shadow-md">
       <h2 className="text-xl font-semibold mb-4">Upload Audio</h2>
-      <input type="file" accept="audio/*" onChange={handleFileChange} className="mb-4" />
+      <input
+        type="file"
+        accept="audio/*"
+        onChange={handleFileChange}
+        className="mb-4"
+      />
       <button
         onClick={handleUpload}
         className="bg-blue-500 text-white px-4 py-2 rounded-2xl hover:bg-blue-600"
@@ -58,7 +68,7 @@ const AudioPlayer = () => {
 
   useEffect(() => {
     const fetchAudios = async () => {
-      const res = await axios.get('/stream');
+      const res = await axios.get("/stream");
       setAudioList(res.data.audios);
     };
     fetchAudios();
@@ -70,7 +80,7 @@ const AudioPlayer = () => {
     setAudio(newAudio);
     newAudio.play();
     setCurrentAudio(audioUrl);
-    axios.post('/interaction', { eventType: 'play', audioUrl });
+    axios.post("/interaction", { eventType: "play", audioUrl });
   };
 
   return (
@@ -99,9 +109,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const analyticsRes = await axios.get('/analytics');
+      const analyticsRes = await axios.get("/analytics");
       setAnalytics(analyticsRes.data);
-      const recRes = await axios.get('/recommendations');
+      const recRes = await axios.get("/recommendations");
       setRecommendations(recRes.data);
     };
     fetchData();
@@ -113,10 +123,14 @@ const Dashboard = () => {
       <h3 className="text-lg font-semibold">Top Tracks</h3>
       <ul>
         {analytics.map((track) => (
-          <li key={track.audioId}>{track.title} - {track.plays} plays</li>
+          <li key={track.audioId}>
+            {track.title} - {track.plays} plays
+          </li>
         ))}
       </ul>
-      <h3 className="text-lg font-semibold mt-6">Personalized Recommendations</h3>
+      <h3 className="text-lg font-semibold mt-6">
+        Personalized Recommendations
+      </h3>
       <ul>
         {recommendations.map((rec) => (
           <li key={rec.audioId}>{rec.title}</li>
